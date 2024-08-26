@@ -11,8 +11,11 @@ pipeline {
     stages {
         stage('Build Docker Images') {
             steps {
-                sh 'docker build -f ${env.WORKSPACE}/src/backend/Dockerfile -t backend:${env.GIT_COMMIT} .'
-                sh 'docker build -f ${env.WORKSPACE}/src/frontend/Dockerfile -t frontend:${env.GIT_COMMIT} .'
+                script {
+                    // Build Docker images
+                    def backend = docker.build("backend:${env.GIT_COMMIT}", "-f ${env.WORKSPACE}/src/backend/Dockerfile .")
+                    def frontend = docker.build("frontend:${env.GIT_COMMIT}", "-f ${env.WORKSPACE}/src/frontend/Dockerfile .")
+                }
             }
         }
        
