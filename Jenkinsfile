@@ -35,7 +35,7 @@ pipeline {
                     // Authenticate Docker client to ECR using AWS CLI
                     withCredentials([aws(credentialsId: '905418472653', region: AWS_REGION)]) {
                         sh "aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO"
-                        sh "aws ecr describe-images --repository-name practical-devops"
+                        sh "aws ecr describe-images --repository-name practical-devops --region $AWS_REGION"
                     }
                    
                     // Push Docker image to ECR
