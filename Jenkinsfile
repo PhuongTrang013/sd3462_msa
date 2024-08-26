@@ -35,13 +35,10 @@ pipeline {
                     // Authenticate Docker client to ECR using AWS CLI
                     withCredentials([aws(credentialsId: '905418472653', region: AWS_REGION)]) {
                         sh "aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO"
-                        sh "aws ecr describe-images --repository-name practical-devops --region $AWS_REGION"
                     }
                    
                     // Push Docker image to ECR
-                    sh "docker manifest create $ECR_REPO $ECR_REPO:backend $ECR_REPO:frontend"
-                    sh "docker manifest inspect $ECR_REPO"
-                    sh "docker manifest push $ECR_REPO"
+                    sh "docker push $ECR_REPO:${env.GIT_COMMIT}"
                 }
             }
         }
