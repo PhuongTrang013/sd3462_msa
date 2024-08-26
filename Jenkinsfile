@@ -33,7 +33,7 @@ pipeline {
             steps {
                 script {
                     // Authenticate Docker client to ECR using AWS CLI
-                    withCredentials([aws(credentialsId: 'a61005e5-e4c9-42a7-939c-cef3e77e87ad', region: AWS_REGION)]) {
+                    withCredentials([aws(credentialsId: '905418472653', region: AWS_REGION)]) {
                         sh "aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO"
                     }
                    
