@@ -38,7 +38,7 @@ pipeline {
                     }
                    
                     // Push Docker image to ECR
-                    sh "docker push $ECR_REPO:${env.GIT_COMMIT}"
+                    sh "docker compose push $ECR_REPO:${env.GIT_COMMIT}"
                 }
             }
         }
