@@ -38,8 +38,9 @@ pipeline {
                     }
                    
                     // Push Docker image to ECR
-                    sh "docker push backend:${env.GIT_COMMIT}"
-                    sh "docker push frontend:${env.GIT_COMMIT}"
+                    docker manifest create $ECR_REPO $ECR_REPO:backend:${env.GIT_COMMIT} $ECR_REPO:frontend:${env.GIT_COMMIT}
+                    docker manifest inspect $ECR_REPO
+                    docker manifest push $ECR_REPO
                 }
             }
         }
