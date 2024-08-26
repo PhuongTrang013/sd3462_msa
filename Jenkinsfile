@@ -13,8 +13,8 @@ pipeline {
             steps {
                 script {
                     // Build Docker images
-                    def backend = docker.build("backend:${env.GIT_COMMIT}", "-f /src/backend/Dockerfile .")
-                    def frontend = docker.build("frontend:${env.GIT_COMMIT}", "-f /src/frontend/Dockerfile .")
+                    def backend = docker.build("backend:${env.GIT_COMMIT}", "-f ${env.WORKSPACE}/src/backend/Dockerfile .")
+                    def frontend = docker.build("frontend:${env.GIT_COMMIT}", "-f ${env.WORKSPACE}/src/frontend/Dockerfile .")
                 }
             }
         }
