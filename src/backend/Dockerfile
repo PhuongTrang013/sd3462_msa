@@ -5,6 +5,11 @@ WORKDIR /usr/src/app
 
 COPY package*.json /usr/src/app/package.json
 COPY package-lock*.json /usr/src/app/package-lock.json
+
+RUN npm set progress=false \
+   && npm config set depth 0 \
+   && npm i install
+   
 RUN npm ci
 
 COPY . /usr/src/app
