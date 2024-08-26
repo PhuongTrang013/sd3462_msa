@@ -38,7 +38,8 @@ pipeline {
                     }
                    
                     // Push Docker image to ECR
-                    sh "docker manifest create $ECR_REPO $ECR_REPO:backend:${env.GIT_COMMIT} $ECR_REPO:frontend:${env.GIT_COMMIT}"
+                    sh "aws ecr describe-images --repository-name practical-devops"
+                    sh "docker manifest create $ECR_REPO $ECR_REPO:backend $ECR_REPO:frontend"
                     sh "docker manifest inspect $ECR_REPO"
                     sh "docker manifest push $ECR_REPO"
                 }
