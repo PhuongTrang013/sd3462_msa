@@ -4,7 +4,6 @@ pipeline {
     environment {
         AWS_REGION = 'us-east-1'
         ECR_REPO = '905418472653.dkr.ecr.us-east-1.amazonaws.com/practical-devops'
-        KUBECONFIG = "/var/lib/jenkins/.kube/config" //locate in jenkins EC2 serevr
     }
    
     stages {
@@ -12,8 +11,8 @@ pipeline {
             steps {
                 script {
                     // Build Docker images
-                    def backend = docker.build("backend:${env.GIT_COMMIT}", "-f ${env.WORKSPACE}/src/backend/Dockerfile .")
-                    def frontend = docker.build("frontend:${env.GIT_COMMIT}", "-f ${env.WORKSPACE}/src/frontend/Dockerfile .")
+                    docker.build("backend:${env.BUILD_NUMBER}", "-f ${env.WORKSPACE}/src/backend/Dockerfile .")
+                    docker.build("frontend:${env.BUILD_NUMBER}", "-f ${env.WORKSPACE}/src/frontend/Dockerfile .")
                 }
             }
         }
@@ -22,8 +21,8 @@ pipeline {
             steps {
                 script {
                     // Tag Docker image using Docker command directly
-                    sh "docker tag backend:${env.GIT_COMMIT} $ECR_REPO:${env.GIT_COMMIT}"
-                    sh "docker tag frontend:${env.GIT_COMMIT} $ECR_REPO:${env.GIT_COMMIT}"
+                    sh "docker tag backend:${env.BUILD_NUMBER} $ECR_REPO:${env.BUILD_NUMBER}"
+                    sh "docker tag frontend:${env.BUILD_NUMBER} $ECR_REPO:${env.BUILD_NUMBER}"
                 }
             }
         }
@@ -38,9 +37,13 @@ pipeline {
                     }
                    
                     // Push Docker image to ECR
-                    sh "docker push $ECR_REPO:${env.GIT_COMMIT}"
+                    sh "docker push $ECR_REPO:${env.BUILD_NUMBER}"
                 }
             }
+        }
+
+        stage('ManifestUpdate') {
+            build job: 'eks-pipeline', parameters: [string(name: 'IMAGE_TAG', value: env.BUILD_NUMBER)]
         }
     }
 }
