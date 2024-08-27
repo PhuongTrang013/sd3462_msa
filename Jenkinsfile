@@ -43,7 +43,11 @@ pipeline {
         }
 
         stage('ManifestUpdate') {
-            build job: 'eks-pipeline', parameters: [string(name: 'IMAGE_TAG', value: env.BUILD_NUMBER)]
+            steps {
+                script {
+                    build job: 'eks-pipeline', parameters: [string(name: 'IMAGE_TAG', value: env.BUILD_NUMBER)]
+                }
+            }
         }
     }
 }
