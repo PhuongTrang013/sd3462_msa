@@ -3,26 +3,33 @@ pipeline {
    
     environment {
         AWS_REGION = 'us-east-1'
+        AWS_CREDENTIALS_ID = '905418472653'
         ECR_REPO = '905418472653.dkr.ecr.us-east-1.amazonaws.com/practical-devops'
+        IMAGE_TAG = "${env.BUILD_NUMBER}-${env.BUILD_ID}"  // Unique image tag
     }
    
     stages {
-        stage('Build Docker Images') {
+        stage('Backend: Build/Tag Docker Image') {
             steps {
                 script {
                     // Build Docker images
-                    docker.build("backend:${env.BUILD_NUMBER}", "-f ${env.WORKSPACE}/src/backend/Dockerfile .")
-                    docker.build("frontend:${env.BUILD_NUMBER}", "-f ${env.WORKSPACE}/src/frontend/Dockerfile .")
+                    docker.build("backend:${IMAGE_TAG}", "-f ${env.WORKSPACE}/src/backend/Dockerfile .")
+
+                    // Tag Docker image using Docker command directly
+                    sh "docker tag backend:${IMAGE_TAG} ${ECR_REPO}:${IMAGE_TAG}"
+                   
                 }
             }
         }
        
-        stage('Tag Docker Image') {
+        stage('Frontend: Build/Tag Docker Image') {
             steps {
                 script {
+                    // Build Docker images
+                    docker.build("frontend:${IMAGE_TAG}", "-f ${env.WORKSPACE}/src/frontend/Dockerfile .")
+                    
                     // Tag Docker image using Docker command directly
-                    sh "docker tag backend:${env.BUILD_NUMBER} $ECR_REPO:${env.BUILD_NUMBER}"
-                    sh "docker tag frontend:${env.BUILD_NUMBER} $ECR_REPO:${env.BUILD_NUMBER}"
+                    sh "docker tag frontend:${IMAGE_TAG} ${ECR_REPO}:${IMAGE_TAG}"
                 }
             }
         }
@@ -32,20 +39,20 @@ pipeline {
             steps {
                 script {
                     // Authenticate Docker client to ECR using AWS CLI
-                    withCredentials([aws(credentialsId: '905418472653', region: AWS_REGION)]) {
+                    withCredentials([aws(credentialsId: "${AWS_CREDENTIALS_ID}", region: AWS_REGION)]) {
                         sh "aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO"
                     }
                    
                     // Push Docker image to ECR
-                    sh "docker push $ECR_REPO:${env.BUILD_NUMBER}"
+                    sh "docker push ${ECR_REPO}:${IMAGE_TAG}"
                 }
             }
         }
 
-        stage('ManifestUpdate') {
+        stage('Trigger Manifest Update') {
             steps {
                 script {
-                    build job: 'eks-pipeline', parameters: [string(name: 'IMAGE_TAG', value: env.BUILD_NUMBER)]
+                    build job: 'eks-pipeline', parameters: [string(name: 'IMAGE_TAG', value: IMAGE_TAG)]
                 }
             }
         }
