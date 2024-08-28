@@ -5,7 +5,7 @@ pipeline {
         AWS_REGION = 'us-east-1'
         AWS_CREDENTIALS_ID = '905418472653'
         ECR_REPO = '905418472653.dkr.ecr.us-east-1.amazonaws.com/practical-devops'
-        IMAGE_TAG = "${env.BUILD_NUMBER}-${env.BUILD_ID}"  // Unique image tag
+        IMAGE_TAG = "latest-${env.BUILD_NUMBER}"  // Unique image tag
     }
    
     stages {
